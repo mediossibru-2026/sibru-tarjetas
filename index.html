@@ -52,39 +52,40 @@
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(139, 195, 74, 0.3);
+      position: relative;
     }
 
-.banner {
-  position: relative;
-  height: 200px;
-  background: linear-gradient(135deg, var(--verde-claro) 0%, var(--verde-medio) 50%, var(--verde-oscuro) 100%);
-  overflow: hidden;
-  z-index: 1;
-}
+    /* BANNER: SIN overflow hidden para que el logo pueda sobresalir */
+    .banner {
+      position: relative;
+      height: 220px;
+      background: linear-gradient(135deg, var(--verde-claro) 0%, var(--verde-medio) 50%, var(--verde-oscuro) 100%);
+    }
 
-.logo-wrapper {
-  position: absolute;
-  bottom: -70px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 160px;
-  height: 120px;
-  background: var(--blanco);
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: 0 12px 32px rgba(139, 195, 74, 0.4);
-  z-index: 100;
-  border: 4px solid var(--blanco);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    /* LOGO: Posicionado absolutamente, sobresale del banner hacia abajo */
+    .logo-wrapper {
+      position: absolute;
+      top: 150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 120px;
+      background: var(--blanco);
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 12px 32px rgba(139, 195, 74, 0.4);
+      z-index: 100;
+      border: 4px solid var(--blanco);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.logo-wrapper img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+    .logo-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
 
     .logo-badge {
       position: absolute;
@@ -103,10 +104,10 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-.header-info {
-  text-align: center;
-  padding: 80px 20px 24px;
-}
+    .header-info {
+      text-align: center;
+      padding: 80px 20px 24px;
+    }
 
     .company-name {
       font-size: 26px;
@@ -617,14 +618,14 @@
       const phone = config.empresa_whatsapp ? String(config.empresa_whatsapp).replace(/^(\+?52)?/, '').trim() : '';
       const phoneFmt = phone.length === 10 ? phone.slice(0,2) + ' ' + phone.slice(2,6) + ' ' + phone.slice(6) : phone;
       
-      // Usar siempre el nuevo logo
       const logoUrl = NUEVO_LOGO;
       
       let html = '';
       
+      // BANNER con logo DENTRO (ambos hijos del container, no anidados)
       html += '<div class="banner">';
       html += '<div class="logo-wrapper">';
-      html += '<img src="' + logoUrl + '?v=2026" alt="' + config.empresa_nombre + '">';
+      html += '<img src="' + logoUrl + '" alt="' + config.empresa_nombre + '">';
       html += '<div class="logo-badge">✓</div>';
       html += '</div>';
       html += '</div>';
