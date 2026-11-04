@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#8BC34A">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="business.business">
+  <meta property="og:title" content="Grupo Sibrü">
+  <meta property="og:description" content="Venta de pollo, snacks y más | Cuautitlán Izcalli, Edo. Méx.">
+  <meta property="og:image" content="https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png">
+  <meta property="og:url" content="https://TUSUARIO.github.io/sibru-tarjetas/">
+  <meta property="og:site_name" content="Grupo Sibrü">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Grupo Sibrü">
+  <meta name="twitter:description" content="Venta de pollo, snacks y más">
+  <meta name="twitter:image" content="https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png">
+  
+  <title>Grupo Sibrü | Tarjeta Digital</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container" id="app">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Cargando...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycby-G02al3V_mTHinABBHcIGzSVQmeKMfFLIILlWOUgJ7CFbdUGiECIY4ao2Ev_KYUkVag/exec';
+    
+    async function loadCard() {
+      try {
+        const response = await fetch(`${API_URL}?format=json&action=getCard&id=empresa`);
+        const result = await response.json();
+        
+        if (!result.success) {
+          document.getElementById('app').innerHTML = '<div class="error">Error al cargar</div>';
+          return;
+        }
+        
+        renderCard(result.data);
+      } catch (error) {
+        document.getElementById('app').innerHTML = '<div class="error">Error de conexión</div>';
+        console.error(error);
+      }
+    }
+    
+    function renderCard(data) {
+      const { config, empleado, galeria, links } = data;
+      const app = document.getElementById('app');
+      
+      app.innerHTML = `
+        <div class="banner">
+          <div class="logo-wrapper">
+            <img src="${config.empresa_logo}" alt="${config.empresa_nombre}">
+            <div class="logo-badge">✓</div>
+          </div>
+        </div>
+        
+        <div class="header-info">
+          <h1 class="company-name">${config.empresa_nombre}</h1>
+          <p class="tagline">${config.empresa_tagline}</p>
+          <div class="location-text">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>${config.empresa_ubicacion}</span>
+          </div>
+        </div>
+        
+        <div class="quick-actions">
+          <a href="https://wa.me/${config.empresa_whatsapp}?text=${encodeURIComponent(config.empresa_whatsapp_msg)}" target="_blank" class="action-btn">
+            <div class="action-icon">💬</div>
+            <span class="action-label">Mensaje</span>
+          </a>
+          <a href="tel:${config.empresa_whatsapp}" class="action-btn">
+            <div class="action-icon">📞</div>
+            <span class="action-label">Llamar</span>
+          </a>
+          <button onclick="scrollToId('productos')" class="action-btn">
+            <div class="action-icon">📦</div>
+            <span class="action-label">Catálogo</span>
+          </button>
+          <button onclick="scrollToId('formulario')" class="action-btn">
+            <div class="action-icon" style="border-color:var(--naranja);">📝</div>
+            <span class="action-label">Cotizar</span>
+          </button>
+        </div>
+        
+        <div class="info-section">
+          <div class="info-item">
+            <div class="info-icon">📞</div>
+            <div class="info-content">
+              <div class="info-label">Teléfono</div>
+              <div class="info-value">${config.empresa_whatsapp}</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">📍</div>
+            <div class="info-content">
+              <div class="info-label">Dirección</div>
+              <div class="info-value">${config.empresa_ubicacion}</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✉️</div>
+            <div class="info-content">
+              <div class="info-label">Email</div>
+              <div class="info-value"><a href="mailto:${config.empresa_email}">${config.empresa_email}</a></div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">🌐</div>
+            <div class="info-content">
+              <div class="info-label">Sitio Web</div>
+              <div class="info-value"><a href="${config.empresa_sitio}" target="_blank">${config.empresa_sitio.replace('https://', '')}</a></div>
+            </div>
+          </div>
+        </div>
+        
+        ${links.length > 0 ? `
+          <div class="links-section">
+            <h2 class="section-title">Redes Sociales</h2>
+            ${links.map(link => `
+              <a href="${link.URL}" target="_blank" class="link-card">
+                <div class="link-icon ${link.ICONO}">${getIcon(link.ICONO)}</div>
+                <div class="link-content">
+                  <div class="link-title">${link.TITULO}</div>
+                  <div class="link-subtitle">${link.SUBTITULO}</div>
+                </div>
+                <div class="link-arrow">›</div>
+              </a>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${galeria.length > 0 ? `
+          <div class="gallery-section" id="productos">
+            <h2 class="section-title">Productos</h2>
+            <div class="gallery-scroll">
+              ${galeria.map(item => `
+                <div class="gallery-item">
+                  <img src="${item.IMAGEN_URL}" alt="${item.DESCRIPCION}" loading="lazy">
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <div class="leads-section" id="formulario">
+          <div class="form-container">
+            <div class="form-header">
+              <h2>Solicita tu Cotización</h2>
+              <p>Te contactaremos en menos de 24 horas</p>
+            </div>
+            <div id="formMsg" class="form-message"></div>
+            <form id="leadForm" onsubmit="handleForm(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre <span class="required">*</span></label>
+                  <input type="text" id="fNombre" required>
+                </div>
+                <div class="form-group">
+                  <label>Teléfono <span class="required">*</span></label>
+                  <input type="tel" id="fTel" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Correo <span class="required">*</span></label>
+                <input type="email" id="fEmail" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo de solicitud <span class="required">*</span></label>
+                <select id="fTipo" required>
+                  <option value="">Selecciona...</option>
+                  <option value="Información General">Información General</option>
+                  <option value="Cotización Mayoreo">Cotización Mayoreo</option>
+                  <option value="Distribuidor">Quiero ser Distribuidor</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Productos de interés</label>
+                <input type="text" id="fProd">
+              </div>
+              <div class="form-group">
+                <label>Mensaje</label>
+                <textarea id="fMsg"></textarea>
+              </div>
+              <div class="form-group">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="fPriv" required>
+                  <label for="fPriv">Acepto la política de privacidad <span class="required">*</span></label>
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" id="btnSubmit">Enviar Solicitud</button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="footer">
+          <div class="footer-actions">
+            <button class="footer-btn" onclick="downloadVCF()">💾 Guardar Contacto</button>
+            <button class="footer-btn secondary" onclick="shareCard()">🔗 Compartir</button>
+          </div>
+          <p class="footer-text">© 2026 ${config.empresa_nombre}</p>
+        </div>
+      `;
+    }
+    
+    function getIcon(type) {
+      const icons = {
+        whatsapp: '💬',
+        facebook: '📘',
+        instagram: '📷',
+        maps: '🗺️'
+      };
+      return icons[type] || '🔗';
+    }
+    
+    function scrollToId(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    async function handleForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      const msg = document.getElementById('formMsg');
+      
+      const data = {
+        nombre: document.getElementById('fNombre').value,
+        telefono: document.getElementById('fTel').value,
+        email: document.getElementById('fEmail').value,
+        tipoSolicitud: document.getElementById('fTipo').value,
+        productosInteres: document.getElementById('fProd').value,
+        mensaje: document.getElementById('fMsg').value
+      };
+      
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'saveLead', lead: data })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          msg.className = 'form-message success';
+          msg.textContent = '¡Enviado con éxito!';
+          document.getElementById('leadForm').reset();
+        } else {
+          msg.className = 'form-message error';
+          msg.textContent = 'Error: ' + result.error;
+        }
+      } catch (error) {
+        msg.className = 'form-message error';
+        msg.textContent = 'Error de conexión';
+      }
+      
+      btn.disabled = false;
+      btn.textContent = 'Enviar Solicitud';
+    }
+    
+    function downloadVCF() {
+      const vcf = 'BEGIN:VCARD\nVERSION:3.0\nFN:Grupo Sibrü\nORG:Grupo Sibrü\nTEL:+525549878203\nEND:VCARD';
+      const blob = new Blob([vcf], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Grupo_Sibru.vcf';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function shareCard() {
+      if (navigator.share) {
+        navigator.share({ title: 'Grupo Sibrü', text: 'Visita nuestra tarjeta', url: window.location.href });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copiado');
+      }
+    }
+    
+    loadCard();
+  </script>
+</body>
+</html>
