@@ -41,17 +41,18 @@
       min-height: 100vh;
       color: var(--negro);
       line-height: 1.6;
+      padding: 20px;
     }
 
-.container {
-  max-width: 480px;
-  margin: 20px auto;
-  background: var(--blanco);
-  min-height: 100vh;
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(139, 195, 74, 0.3);
-  overflow: hidden;
-}
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--blanco);
+      min-height: 100vh;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(139, 195, 74, 0.3);
+    }
 
     .banner {
       position: relative;
@@ -60,21 +61,23 @@
       overflow: hidden;
     }
 
-.logo-wrapper {
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 140px;
-  height: 140px;
-  background: var(--blanco);
-  border-radius: 50%;
-  padding: 12px;
-  box-shadow: 0 12px 32px rgba(139, 195, 74, 0.4);
-  z-index: 10;
-  border: 4px solid var(--blanco);
-  overflow: hidden;
-}
+    .logo-wrapper {
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 140px;
+      background: var(--blanco);
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 12px 32px rgba(139, 195, 74, 0.4);
+      z-index: 10;
+      border: 4px solid var(--blanco);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .logo-wrapper img {
       width: 100%;
@@ -567,12 +570,14 @@
     }
 
     @media (max-width: 480px) {
+      body { padding: 0; }
+      .container { border-radius: 0; }
       .form-row { grid-template-columns: 1fr; }
     }
 
     @media (min-width: 768px) {
-      body { padding: 20px; }
-      .container { border-radius: 16px; overflow: hidden; }
+      body { padding: 40px 20px; }
+      .container { border-radius: 24px; }
     }
   </style>
 </head>
@@ -586,6 +591,7 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby-G02al3V_mTHinABBHcIGzSVQmeKMfFLIILlWOUgJ7CFbdUGiECIY4ao2Ev_KYUkVag/exec';
+    const NUEVO_LOGO = 'https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png';
 
     async function loadCard() {
       try {
@@ -611,11 +617,14 @@
       const phone = config.empresa_whatsapp ? String(config.empresa_whatsapp).replace(/^(\+?52)?/, '').trim() : '';
       const phoneFmt = phone.length === 10 ? phone.slice(0,2) + ' ' + phone.slice(2,6) + ' ' + phone.slice(6) : phone;
       
+      // Usar siempre el nuevo logo
+      const logoUrl = NUEVO_LOGO;
+      
       let html = '';
       
       html += '<div class="banner">';
       html += '<div class="logo-wrapper">';
-      html += '<img src="https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png" alt="' + config.empresa_nombre + '" style="border-radius: 50%; object-fit: cover;">';
+      html += '<img src="' + logoUrl + '" alt="' + config.empresa_nombre + '">';
       html += '<div class="logo-badge">✓</div>';
       html += '</div>';
       html += '</div>';
