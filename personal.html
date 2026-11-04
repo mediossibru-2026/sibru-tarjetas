@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  
+  <!-- Open Graph - Se actualiza dinámicamente con JS -->
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Tarjeta Personal | Grupo Sibrü">
+  <meta property="og:description" content="Contacto de Grupo Sibrü">
+  <meta property="og:image" content="https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png">
+  
+  <title>Tarjeta Personal | Grupo Sibrü</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #000000; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #ffffff; border-radius: 24px; padding: 40px 28px; max-width: 380px; width: 100%; box-shadow: 0 20px 60px rgba(139, 195, 74, 0.2); text-align: center; }
+    .logo-container { margin-bottom: 24px; }
+    .logo-large { width: 100px; height: 100px; margin: 0 auto; display: block; border-radius: 16px; box-shadow: 0 8px 24px rgba(139, 195, 74, 0.3); }
+    .avatar { width: 110px; height: 110px; border-radius: 50%; background: linear-gradient(135deg, #8BC34A, #33691E); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 4px solid #8BC34A; overflow: hidden; box-shadow: 0 8px 24px rgba(139, 195, 74, 0.4); }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-initials { font-size: 40px; font-weight: 700; color: #8BC34A; }
+    .name { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+    .role { font-size: 15px; color: #666; margin-bottom: 8px; font-weight: 500; }
+    .company { font-size: 13px; color: #8BC34A; margin-bottom: 24px; font-weight: 600; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .action-btn { background: #f8f9fa; border: 2px solid #8BC34A; border-radius: 14px; padding: 14px 10px; text-decoration: none; color: #1a1a1a; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s; cursor: pointer; font-family: inherit; font-size:12px; font-weight: 600; }
+    .action-btn:hover { background: #8BC34A; transform: translateY(-3px); }
+    .action-btn:hover svg { fill: #fff; }
+    .action-btn svg { width: 26px; height: 26px; fill: #8BC34A; }
+    .corporate-btn { grid-column: span 2; background: linear-gradient(135deg, #8BC34A, #689F38); border: none; border-radius: 14px; padding: 16px; color: #fff; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s; cursor: pointer; font-family: inherit; font-size:14px; font-weight: 700; margin-top: 8px; }
+    .corporate-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(139, 195, 74, 0.4); }
+    .corporate-btn svg { width: 28px; height: 28px; fill: #fff; }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, #8BC34A, transparent); margin: 20px 0; }
+    .contact-info { font-size: 13px; color: #666; line-height: 2; }
+    .contact-info a { color: #8BC34A; text-decoration: none; font-weight: 600; }
+    .footer-brand { margin-top: 20px; font-size: 11px; color: #999; }
+    .loading { text-align: center; padding: 40px; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="card" id="app">
+    <div class="loading">Cargando...</div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycby-G02al3V_mTHinABBHcIGzSVQmeKMfFLIILlWOUgJ7CFbdUGiECIY4ao2Ev_KYUkVag/exec';
+    const params = new URLSearchParams(window.location.search);
+    const cardId = params.get('id') || 'empresa';
+    let cardData = null;
+
+    async function loadCard() {
+      try {
+        const response = await fetch(`${API_URL}?format=json&action=getEmployee&id=${cardId}`);
+        const result = await response.json();
+        
+        if (!result.success) {
+          document.getElementById('app').innerHTML = '<div class="loading">Error al cargar</div>';
+          return;
+        }
+        
+        cardData = result.data;
+        updateUI(cardData);
+      } catch (error) {
+        document.getElementById('app').innerHTML = '<div class="loading">Error de conexión</div>';
+      }
+    }
+
+    function updateUI(data) {
+      const empleado = data;
+      const name = empleado.NOMBRE || 'Sin nombre';
+      const cargo = empleado.CARGO || '';
+      const phone = empleado.TELEFONO || '';
+      const phoneClean = String(phone).replace(/^(\+?52)?/, '').trim();
+      const phoneFmt = phoneClean.length === 10 ? phoneClean.slice(0,2) + ' ' + phoneClean.slice(2,6) + ' ' + phoneClean.slice(6) : phoneClean;
+      const email = empleado.EMAIL || '';
+      const fotoPerfil = empleado.FOTO_PERFIL || '';
+      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      
+      // Actualizar meta tags dinámicamente
+      document.querySelector('meta[property="og:title"]').content = `${name} - Grupo Sibrü`;
+      document.querySelector('meta[property="og:description"]').content = `${cargo} | Cuautitlán Izcalli`;
+      document.querySelector('meta[property="og:image"]').content = fotoPerfil || 'https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png';
+      document.title = `${name} | Grupo Sibrü`;
+      
+      let avatarHTML = `<span class="avatar-initials">${initials}</span>`;
+      if (fotoPerfil) {
+        avatarHTML = `<img src="${fotoPerfil}" alt="${name}">`;
+      }
+      
+      document.getElementById('app').innerHTML = `
+        <div class="logo-container">
+          <img src="https://res.cloudinary.com/sdhnyr5e/image/upload/v1793814011/Retrato_Google_con_Sonrisa.png" alt="Grupo Sibrü" class="logo-large">
+        </div>
+        <div class="avatar">${avatarHTML}</div>
+        <div class="name">${name}</div>
+        <div class="role">${cargo}</div>
+        <div class="company">Grupo Sibrü</div>
+        
+        <div class="actions">
+          <a href="https://wa.me/52${phoneClean}" target="_blank" class="action-btn">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            <span>WhatsApp</span>
+          </a>
+          <a href="tel:${phoneClean}" class="action-btn">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            <span>Llamar</span>
+          </a>
+          <a href="mailto:${email}" class="action-btn">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <span>Email</span>
+          </a>
+          <a href="#" onclick="downloadVCF(); return false;" class="action-btn">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            <span>Guardar</span>
+          </a>
+          <a href="index.html" class="corporate-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>Ver Información de la Empresa</span>
+          </a>
+        </div>
+        
+        <div class="divider"></div>
+        <div class="contact-info">
+          <div>📞 ${phoneFmt}</div>
+          <div>✉️ <a href="mailto:${email}">${email}</a></div>
+        </div>
+        <div class="footer-brand">Grupo Sibrü © 2026</div>
+      `;
+    }
+
+    function downloadVCF() {
+      if (!cardData) return;
+      const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${cardData.NOMBRE}\nORG:Grupo Sibrü\nTITLE:${cardData.CARGO}\nTEL:+52${cardData.TELEFONO}\nEMAIL:${cardData.EMAIL}\nEND:VCARD`;
+      const blob = new Blob([vcf], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${cardData.NOMBRE.replace(/\s+/g, '_')}.vcf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    loadCard();
+  </script>
+</body>
+</html>
