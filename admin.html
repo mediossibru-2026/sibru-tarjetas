@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrativo SIBRU</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: linear-gradient(135deg, #8BC34A 0%, #33691E 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .header h1 { color: #33691E; margin-bottom: 8px; }
+    .header p { color: #666; }
+    
+    .card { background: #fff; border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .card h2 { color: #33691E; margin-bottom: 20px; font-size: 20px; border-bottom: 2px solid #8BC34A; padding-bottom: 12px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; transition: border-color 0.3s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8BC34A; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    
+    .btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .btn-primary { background: linear-gradient(135deg, #8BC34A, #689F38); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139, 195, 74, 0.4); }
+    .btn-secondary { background: #f5f5f7; color: #1a1a1a; }
+    .btn-secondary:hover { background: #e8e8e8; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #c82333; }
+    
+    .alert { padding: 16px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    
+    .login-box { max-width: 400px; margin: 100px auto; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #f8f9fa; font-weight: 600; color: #33691E; }
+    tr:hover { background: #f8f9fa; }
+    
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-secondary { background: #e9ecef; color: #495057; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #eee; }
+    .tab { padding: 12px 20px; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.3s; }
+    .tab:hover { color: #8BC34A; }
+    .tab.active { color: #8BC34A; border-bottom-color: #8BC34A; }
+    
+    .hidden { display: none; }
+    .loading { text-align: center; padding: 40px; color: #666; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #8BC34A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- LOGIN -->
+    <div id="loginSection" class="card login-box">
+      <div class="header">
+        <h1>🔐 Panel Administrativo</h1>
+        <p>Grupo Sibrü</p>
+      </div>
+      <div id="loginAlert"></div>
+      <div class="form-group">
+        <label for="pinInput">PIN de Administrador</label>
+        <input type="password" id="pinInput" placeholder="Ingresa el PIN" onkeypress="if(event.key==='Enter')login()">
+      </div>
+      <button class="btn btn-primary" onclick="login()" style="width:100%">Ingresar</button>
+    </div>
+
+    <!-- PANEL PRINCIPAL -->
+    <div id="mainSection" class="hidden">
+      <div class="header">
+        <h1>Panel Administrativo SIBRU</h1>
+        <p>Gestión de empleados y configuración</p>
+        <button class="btn btn-secondary" onclick="logout()" style="margin-top:12px">Cerrar Sesión</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('empleados')">👥 Empleados</button>
+        <button class="tab" onclick="showTab('nuevoEmpleado')">➕ Nuevo Empleado</button>
+        <button class="tab" onclick="showTab('configuración')">⚙️ Configuración</button>
+      </div>
+
+      <!-- TAB EMPLEADOS -->
+      <div id="tabEmpleados" class="card">
+        <h2>Lista de Empleados</h2>
+        <div id="empleadosContent" class="loading">
+          <div class="spinner"></div>
+          <div>Cargando empleados...</div>
+        </div>
+      </div>
+
+      <!-- TAB NUEVO EMPLEADO -->
+      <div id="tabNuevoEmpleado" class="card hidden">
+        <h2>Agregar Nuevo Empleado</h2>
+        <div id="nuevoEmpleadoAlert"></div>
+        <form id="nuevoEmpleadoForm" onsubmit="agregarEmpleado(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>ID Único * <small>(sin espacios, ej: juan_ventas)</small></label>
+              <input type="text" id="empId" required placeholder="juan_ventas">
+            </div>
+            <div class="form-group">
+              <label>Tipo *</label>
+              <select id="empTipo" required>
+                <option value="empleado">Empleado</option>
+                <option value="empresa">Empresa</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre Completo *</label>
+              <input type="text" id="empNombre" required placeholder="Juan Pérez">
+            </div>
+            <div class="form-group">
+              <label>Cargo / Puesto *</label>
+              <input type="text" id="empCargo" required placeholder="Ejecutivo de Ventas">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Teléfono *</label>
+              <input type="tel" id="empTelefono" required placeholder="5512345678">
+            </div>
+            <div class="form-group">
+              <label>Correo Electrónico *</label>
+              <input type="email" id="empEmail" required placeholder="juan@gruposibru.com">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>URL de Foto de Perfil</label>
+            <input type="url" id="empFoto" placeholder="https://res.cloudinary.com/...">
+            <small style="color:#666;display:block;margin-top:6px">Sube la foto a <a href="https://cloudinary.com" target="_blank">Cloudinary</a> y pega el link aquí</small>
+          </div>
+          
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="empActivo">
+              <option value="TRUE">Activo</option>
+              <option value="FALSE">Inactivo</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">💾 Guardar Empleado</button>
+          <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">Limpiar</button>
+        </form>
+      </div>
+
+      <!-- TAB CONFIGURACIÓN -->
+      <div id="tabConfiguración" class="card hidden">
+        <h2>Configuración General</h2>
+        <div id="configContent" class="loading">
+          <div class="spinner"></div>
+          <div>Cargando configuración...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycby-G02al3V_mTHinABBHcIGzSVQmeKMfFLIILlWOUgJ7CFbdUGiECIY4ao2Ev_KYUkVag/exec';
+    let currentPin = '';
+
+    async function login() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) {
+        showAlert('loginAlert', 'Ingresa el PIN', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}?format=json&action=validatePin&pin=${pin}`);
+        const result = await response.json();
+
+        if (result.success) {
+          currentPin = pin;
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('mainSection').classList.remove('hidden');
+          cargarEmpleados();
+          cargarConfiguracion();
+        } else {
+          showAlert('loginAlert', 'PIN incorrecto', 'error');
+        }
+      } catch (error) {
+        showAlert('loginAlert', 'Error de conexión: ' + error.message, 'error');
+      }
+    }
+
+    function logout() {
+      currentPin = '';
+      document.getElementById('pinInput').value = '';
+      document.getElementById('mainSection').classList.add('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+    }
+
+    function showTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('[id^="tab"]').forEach(t => t.classList.add('hidden'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
+      
+      if (tabName === 'empleados') cargarEmpleados();
+      if (tabName === 'configuración') cargarConfiguracion();
+    }
+
+    async function cargarEmpleados() {
+      const content = document.getElementById('empleadosContent');
+      content.innerHTML = '<div class="spinner"></div><div>Cargando...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}?format=json&action=getAllEmployees`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const html = `
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${result.data.map(emp => `
+                    <tr>
+                      <td><code>${emp.ID}</code></td>
+                      <td>${emp.NOMBRE}</td>
+                      <td>${emp.CARGO || '-'}</td>
+                      <td>${emp.TELEFONO || '-'}</td>
+                      <td>${emp.EMAIL || '-'}</td>
+                      <td><span class="badge ${emp.TIPO === 'empresa' ? 'badge-secondary' : 'badge-success'}">${emp.TIPO}</span></td>
+                      <td><span class="badge ${emp.ACTIVO ? 'badge-success' : 'badge-secondary'}">${emp.ACTIVO ? 'Activo' : 'Inactivo'}</span></td>
+                      <td>
+                        <a href="personal.html?id=${emp.ID}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:12px">Ver</a>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top:16px;text-align:right">
+              <button class="btn btn-primary" onclick="showTab('nuevoEmpleado');document.querySelector('.tab:nth-child(2)').click()">➕ Agregar Empleado</button>
+            </div>
+          `;
+          content.innerHTML = html;
+        } else {
+          content.innerHTML = '<div class="alert alert-error">Error al cargar empleados</div>';
+        }
+      } catch (error) {
+        content.innerHTML = '<div class="alert alert-error">Error de conexión: ' + error.message + '</div>';
+      }
+    }
+
+    async function agregarEmpleado(e) {
+      e.preventDefault();
+      const alert = document.getElementById('nuevoEmpleadoAlert');
+      const btn = e.target.querySelector('button[type="submit"]');
+      
+      const empleado = {
+        ID: document.getElementById('empId').value.trim(),
+        TIPO: document.getElementById('empTipo').value,
+        NOMBRE: document.getElementById('empNombre').value.trim(),
+        CARGO: document.getElementById('empCargo').value.trim(),
+        TELEFONO: document.getElementById('empTelefono').value.trim(),
+        EMAIL: document.getElementById('empEmail').value.trim(),
+        FOTO_PERFIL: document.getElementById('empFoto').value.trim(),
+        ACTIVO: document.getElementById('empActivo').value === 'TRUE'
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'addEmployee',
+            employee: empleado
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert('nuevoEmpleadoAlert', '✅ Empleado agregado correctamente. <a href="personal.html?id=' + empleado.ID + '" target="_blank">Ver tarjeta</a>', 'success');
+          limpiarFormulario();
+        } else {
+          showAlert('nuevoEmpleadoAlert', 'Error: ' + (result.error || 'No se pudo agregar'), 'error');
+        }
+      } catch (error) {
+        showAlert('nuevoEmpleadoAlert', 'Error de conexión: ' + error.message, 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '💾 Guardar Empleado';
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('nuevoEmpleadoForm').reset();
+      document.getElementById('empActivo').value = 'TRUE';
+    }
+
+    async function cargarConfiguracion() {
+      const content = document.getElementById('configContent');
+      content.innerHTML = '<div class="spinner"></div><div>Cargando...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}?format=json&action=getConfig`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const html = `
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Clave</th>
+                    <th>Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${Object.entries(result.data).map(([key, value]) => `
+                    <tr>
+                      <td><strong>${key}</strong></td>
+                      <td>${value}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+          content.innerHTML = html;
+        } else {
+          content.innerHTML = '<div class="alert alert-error">Error al cargar configuración</div>';
+        }
+      } catch (error) {
+        content.innerHTML = '<div class="alert alert-error">Error de conexión: ' + error.message + '</div>';
+      }
+    }
+
+    function showAlert(elementId, message, type) {
+      const alert = document.getElementById(elementId);
+      alert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      setTimeout(() => alert.innerHTML = '', 5000);
+    }
+  </script>
+</body>
+</html>
