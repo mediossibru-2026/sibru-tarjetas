@@ -287,16 +287,24 @@
       btn.disabled = true;
       btn.textContent = 'Guardando...';
 
-      try {
-const response = await fetch(API_URL, {
-  method: 'POST',
-  mode: 'no-cors',
-  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-  body: JSON.stringify({
-    action: 'addEmployee',
-    employee: empleado
-  })
-});
+try {
+  await fetch(API_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action: 'addEmployee',
+      employee: empleado
+    })
+  });
+  
+  // Con no-cors no podemos leer la respuesta, asumimos éxito
+  showAlert('nuevoEmpleadoAlert', '✅ Empleado agregado correctamente. <a href="personal.html?id=' + empleado.ID + '" target="_blank">Ver tarjeta</a>', 'success');
+  limpiarFormulario();
+  
+} catch (error) {
+  showAlert('nuevoEmpleadoAlert', 'Error de conexión: ' + error.message, 'error');
+}
 
         const result = await response.json();
 
